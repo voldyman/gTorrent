@@ -83,7 +83,7 @@ void GtkTorrentCellRenderer::render(const Cairo::RefPtr<::Cairo::Context >& cr,
                                     Gtk::Widget& widget, const Gdk::Rectangle& background_area,
                                     const Gdk::Rectangle& cell_area, Gtk::CellRendererState flags)
 {
-  //text_renderer->property_text().set_value(name().get_value());
+  text_renderer->property_text() = property_name().get_value();
   text_renderer->render(cr, widget,  background_area, cell_area, flags);
 }
 
