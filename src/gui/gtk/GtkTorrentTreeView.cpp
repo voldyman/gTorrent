@@ -12,31 +12,15 @@ GtkTorrentTreeView::GtkTorrentTreeView()
 
 void GtkTorrentTreeView::setupColumns()
 {
-	unsigned int cid = 0;
-	Gtk::TreeViewColumn *col = nullptr;
+    Gtk::TreeViewColumn *col = Gtk::manage(new Gtk::TreeViewColumn());
+	this->append_column(*col);
 
-	cid = this->append_column("Name", m_cols.m_col_name);
-	col = this->get_column(cid - 1);
-	col->set_fixed_width(250);
+	GtkTorrentCellRenderer *cell = Gtk::manage(new GtkTorrentCellRenderer());
+    col->pack_start(*cell);
 
-	cid = this->append_column("Seeders", m_cols.m_col_seeders);
-	col = this->get_column(cid - 1);
-	col->set_alignment(0.5);
-	col->set_fixed_width(90);
-	
-	cid = this->append_column("Leechers", m_cols.m_col_leechers);
-	col = this->get_column(cid - 1);
-	col->set_alignment(0.5);
-	col->set_fixed_width(90);
-
-	Gtk::CellRendererProgress *cell = Gtk::manage(new Gtk::CellRendererProgress());
-	cid = this->append_column("Progress", *cell);
-	col = this->get_column(cid - 1);
-
-	if (col) {
-		col->add_attribute(cell->property_value(), m_cols.m_col_percent);
-		col->add_attribute(cell->property_text(), m_cols.m_col_percent_text);
-	}
+    col->add_attribute(*cell, "name", 0);
+    col->add_attribute(*cell, "percent-text", 1);
+    col->add_attribute(*cell, "seeders", 2);
 
 	for (auto &c : this->get_columns()) {
 		c->set_sizing(Gtk::TreeViewColumnSizing::TREE_VIEW_COLUMN_FIXED);
@@ -77,4 +61,63 @@ void GtkTorrentTreeView::updateCells()
 
 		++i;
 	}
+}
+
+GtkTorrentCellRenderer::GtkTorrentCellRenderer() :
+  Glib::ObjectBase(typeid(GtkTorrentCellRenderer)),
+  Gtk::CellRenderer(),
+  m_name(*this, "name"),
+  m_percent_text(*this, "percent-text"),
+  m_seeders(*this, "seeders"),
+  m_percent(*this, "percent"),
+  m_leechers(*this, "leechers"),
+  m_empty(*this, "empty")
+{
+  text_renderer = Glib::RefPtr<Gtk::CellRendererText>(new Gtk::CellRendererText());
+  progress_renderer = Glib::RefPtr<Gtk::CellRendererProgress>(new Gtk::CellRendererProgress());
+  icon_renderer = Glib::RefPtr<Gtk::CellRendererPixbuf>(new Gtk::CellRendererPixbuf());
+}
+
+void GtkTorrentCellRenderer::render(const Cairo::RefPtr<::Cairo::Context >& cr,
+                                    Gtk::Widget& widget, const Gdk::Rectangle& background_area,
+                                    const Gdk::Rectangle& cell_area, Gtk::CellRendererState flags)
+{
+  //text_renderer->property_text().set_value(name().get_value());
+  text_renderer->render(cr, widget,  background_area, cell_area, flags);
+}
+
+Glib::PropertyProxy<Glib::ustring>
+GtkTorrentCellRenderer::property_name()
+{
+  return m_name.get_proxy();
+}
+
+Glib::PropertyProxy<Glib::ustring>
+GtkTorrentCellRenderer::property_percent_text()
+{
+    return m_percent_text.get_proxy();
+}
+
+Glib::PropertyProxy<unsigned int>
+GtkTorrentCellRenderer::property_seeders()
+{
+    return m_seeders.get_proxy();
+}
+
+Glib::PropertyProxy<unsigned int>
+GtkTorrentCellRenderer::property_leechers()
+{
+    return m_leechers.get_proxy();
+}
+
+Glib::PropertyProxy<unsigned int>
+GtkTorrentCellRenderer::property_percent()
+{
+    return m_percent.get_proxy();
+}
+
+Glib::PropertyProxy<unsigned int>
+GtkTorrentCellRenderer::property_empty()
+{
+    return m_empty.get_proxy();
 }

@@ -4,6 +4,7 @@
 #include <gtkmm/treemodel.h>
 #include <gtkmm/liststore.h>
 #include <gtkmm/treeview.h>
+#include <glibmm/property.h>
 #include <core/Torrent.hpp>
 
 // Gtk Torrent Columns Section
@@ -26,6 +27,39 @@ public:
 	Gtk::TreeModelColumn<unsigned int> m_col_percent;
 	Gtk::TreeModelColumn<Glib::ustring> m_col_percent_text;
 	Gtk::TreeModelColumn<unsigned int> m_col_empty;
+};
+
+// Gtk Torrent Tree View Cell Renderer
+
+class GtkTorrentCellRenderer : public Gtk::CellRenderer
+{
+  private:
+    Glib::RefPtr<Gtk::CellRendererText> text_renderer;
+    Glib::RefPtr<Gtk::CellRendererProgress> progress_renderer;
+    Glib::RefPtr<Gtk::CellRendererPixbuf> icon_renderer;
+
+    Glib::Property<Glib::ustring> m_name;
+    Glib::Property<Glib::ustring> m_percent_text;
+    Glib::Property<unsigned int> m_seeders;
+    Glib::Property<unsigned int> m_leechers;
+    Glib::Property<unsigned int> m_percent;
+    Glib::Property<unsigned int> m_empty;
+
+  public:
+    GtkTorrentCellRenderer();
+
+    unsigned int Padding;
+
+    Glib::PropertyProxy<Glib::ustring> property_name();
+    Glib::PropertyProxy<Glib::ustring> property_percent_text();
+    Glib::PropertyProxy<unsigned int> property_seeders();
+    Glib::PropertyProxy<unsigned int> property_leechers();
+    Glib::PropertyProxy<unsigned int> property_percent();
+    Glib::PropertyProxy<unsigned int> property_empty();
+
+    void render(const Cairo::RefPtr<::Cairo::Context>& cr,
+                Gtk::Widget& widget, const Gdk::Rectangle& background_area,
+                const Gdk::Rectangle& cell_area, Gtk::CellRendererState flags);
 };
 
 // Gtk Torrent Tree View Section
