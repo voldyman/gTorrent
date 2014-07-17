@@ -11,15 +11,27 @@ gt::Core::Core() :
 	m_session.listen_on(make_pair(6881, 6889), ec);
 }
 
-bool gt::Core::isMagnetLink(string url)
+bool gt::Core::isMagnetLink(string const& url)
 {
-	string prefix = "magnet:";
-	return url.substr(0, prefix.size()) == prefix;
+	const string prefix = "magnet:";
+	return url.compare(0, prefix.length(), prefix) == 0;
 }
 
 bool gt::Core::isRunning()
 {
 	return m_running;
+}
+
+string gt::Core::getDefaultSavePath()
+{
+	#ifndef _WIN32
+	char *savepath = getenv("HOME");
+	return savepath == NULL ? string("") : string(savepath)+"/Downloads";
+	#else
+	char *savedrive = getenv("HOMEDRIVE");
+	char *savepath = getenv("HOMEPATH");
+	return savepath == NULL ? string("") : string(savedrive)+string(savepath)+"/Downloads";
+	#endif
 }
 
 vector<shared_ptr<Torrent> > &gt::Core::getTorrents()
@@ -32,7 +44,7 @@ shared_ptr<Torrent> gt::Core::addTorrent(string path)
 	if (path.empty())
 		return NULL;
 	
-	std::shared_ptr<Torrent> t = std::shared_ptr<Torrent>(new Torrent(path));
+	shared_ptr<Torrent> t = make_shared<Torrent>(path);
 	libtorrent::torrent_handle h = m_session.add_torrent(t->getTorrentParams());
 
 	t->setHandle(h);
@@ -67,9 +79,9 @@ shared_ptr<Torrent> gt::Core::addTorrent(string path)
 
 void gt::Core::update()
 {
-	/*auto iter = std::begin(m_torrents);
+	/*auto iter = begin(m_torrents);
 
-	while (iter != std::end(m_torrents))
+	while (iter != end(m_torrents))
 	{
 		auto &t = **iter;
 
@@ -94,6 +106,6 @@ void gt::Core::update()
 
 void gt::Core::shutdown()
 {
-	gt::Log::Debug("Shutting down core library...\n");
+	gt::Log::Debug("Shutting down core library...");
 	m_running = false;
 }

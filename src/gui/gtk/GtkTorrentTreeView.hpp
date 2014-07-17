@@ -17,6 +17,7 @@ public:
 		add(m_col_name);
 		add(m_col_seeders);
 		add(m_col_leechers);
+		add(m_col_dl_speed);
 		add(m_col_percent);
 		add(m_col_percent_text);
 	}
@@ -27,6 +28,7 @@ public:
 	Gtk::TreeModelColumn<unsigned int> m_col_percent;
 	Gtk::TreeModelColumn<Glib::ustring> m_col_percent_text;
 	Gtk::TreeModelColumn<unsigned int> m_col_empty;
+	Gtk::TreeModelColumn<Glib::ustring> m_col_dl_speed;
 };
 
 // Gtk Torrent Tree View Cell Renderer
@@ -74,8 +76,7 @@ private:
 public:
 	GtkTorrentTreeView();
 
-	void addCell(t_ptr &t);
+	void addCell(shared_ptr<Torrent> &t);
 	void updateCells();
-
 };
 

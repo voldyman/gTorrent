@@ -30,7 +30,7 @@ void GtkTorrentTreeView::setupColumns()
 	}
 }
 
-void GtkTorrentTreeView::addCell(t_ptr &t)
+void GtkTorrentTreeView::addCell(shared_ptr<Torrent> &t)
 {
 	if (t == NULL)
 		return;
@@ -48,12 +48,13 @@ void GtkTorrentTreeView::updateCells()
 	unsigned int i = 0;
 
 	for (auto &c : m_liststore->children()) {
-		t_ptr t = Application::getSingleton()->getCore()->getTorrents()[i];
+		shared_ptr<Torrent> t = Application::getSingleton()->getCore()->getTorrents()[i];
 
 		c[m_cols.m_col_percent] = t->getTotalProgress();
 		c[m_cols.m_col_seeders] = t->getTotalSeeders();
 		c[m_cols.m_col_percent_text] = t->getTextState();
 		c[m_cols.m_col_leechers] = t->getTotalLeechers();
+		c[m_cols.m_col_dl_speed] = t->getTextDownloadRate();
 		
 		// TODO: Handle with events
 
@@ -69,8 +70,8 @@ GtkTorrentCellRenderer::GtkTorrentCellRenderer() :
   m_name(*this, "name"),
   m_percent_text(*this, "percent-text"),
   m_seeders(*this, "seeders"),
-  m_percent(*this, "percent"),
   m_leechers(*this, "leechers"),
+  m_percent(*this, "percent"),
   m_empty(*this, "empty")
 {
   text_renderer = Glib::RefPtr<Gtk::CellRendererText>(new Gtk::CellRendererText());

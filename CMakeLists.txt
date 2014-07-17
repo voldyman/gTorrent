@@ -10,11 +10,22 @@ PROJECT (gtorrent)
 
 SET (GTORRENT_VERSION_MAJOR 0)                                                                                                                                                                                                                 
 SET (GTORRENT_VERSION_MINOR 0)
-SET (GTORRENT_VERSION_PATCH 0)
+SET (GTORRENT_VERSION_PATCH 1)
 
 ############################################################
 
-SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -g -include all.h")
+# Configure version into utils/Version.hpp
+SET (VERSION ${GTORRENT_VERSION_MAJOR}.${GTORRENT_VERSION_MINOR}.${GTORRENT_VERSION_PATCH})
+configure_file(src/utils/Version.hpp.in Version.hpp @ONLY)
+
+IF (WIN32)
+    SET (WIN32_CXXFLAGS "-mwindows" ) #Prevents process from automatically spawning a console window.
+ELSE ()
+    SET (WIN32_CXXFLAGS "")
+ENDIF ()
+
+# Set compiler flags
+SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -g -include all.h -Wall ${WIN32_CXXFLAGS}")
 
 # Fuck liboost for not providing boost.pc or fucking something
 SET (Boost_USE_STATIC_LIBS ON) 
@@ -28,7 +39,7 @@ PKG_SEARCH_MODULE(LIBTORRENT REQUIRED libtorrent-rasterbar)
 PKG_SEARCH_MODULE(LIBGTKMM REQUIRED gtkmm-3.0)
 PKG_SEARCH_MODULE(LIBGLIBMM REQUIRED glibmm-2.4)
 
-INCLUDE_DIRECTORIES( ${PROJECT_BINARY_DIRS} )
+INCLUDE_DIRECTORIES( ${PROJECT_BINARY_DIR} )
 
 LINK_DIRECTORIES (
         ${Boost_LIBRARY_DIRS}

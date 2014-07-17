@@ -3,6 +3,7 @@
 #include "GtkMainWindow.hpp"
 #include <Application.hpp>
 #include <gtkmm/button.h>
+#include <gtkmm/hvseparator.h>
 #include <gtkmm/stock.h>
 #include <glibmm.h>
 
@@ -19,14 +20,21 @@ GtkMainWindow::GtkMainWindow() :
 	// This needs to be refactored
 
 	Gtk::Button *add_torrent_btn = Gtk::manage(new Gtk::Button());
-	add_torrent_btn->set_label("Add .torrent");
+	add_torrent_btn->set_image_from_icon_name("gtk-add");
 	add_torrent_btn->signal_clicked().connect(sigc::mem_fun(*this, &GtkMainWindow::onAddBtnClicked));
 	header->add(*add_torrent_btn);
 
 	Gtk::Button *add_link_btn = Gtk::manage(new Gtk::Button());
-	add_link_btn->set_label("Add Magnet");
+	add_link_btn->set_image_from_icon_name("gtk-paste");
 	add_link_btn->signal_clicked().connect(sigc::mem_fun(*this, &GtkMainWindow::onAddMagnetBtnClicked));
 	header->add(*add_link_btn);
+
+	Gtk::VSeparator *separator = Gtk::manage(new Gtk::VSeparator());
+	header->add(*separator);
+
+	Gtk::Button *pause_btn = Gtk::manage(new Gtk::Button());
+	pause_btn->set_image_from_icon_name("gtk-media-pause");
+	header->add(*pause_btn);
 
 	this->set_titlebar(*header);
 
@@ -51,7 +59,7 @@ void GtkMainWindow::onAddBtnClicked()
 	fc.set_select_multiple();
 	fc.set_transient_for(*this);
 	fc.add_button("_Cancel", Gtk::RESPONSE_CANCEL);
-  	fc.add_button("Select", Gtk::RESPONSE_OK);
+	fc.add_button("Select", Gtk::RESPONSE_OK);
 
   	Glib::RefPtr<Gtk::FileFilter> filter_t = Gtk::FileFilter::create();
 	filter_t->set_name("Torrent Files");
@@ -64,7 +72,7 @@ void GtkMainWindow::onAddBtnClicked()
 		case Gtk::RESPONSE_OK:
 			for (auto &f : fc.get_filenames())
 			{
-				t_ptr t = m_core->addTorrent(f.c_str());
+				shared_ptr<Torrent> t = m_core->addTorrent(f.c_str());
 				m_treeview->addCell(t);
 			}
 		break;
@@ -79,7 +87,7 @@ void GtkMainWindow::onAddMagnetBtnClicked()
 
 	switch (r) {
 		case Gtk::RESPONSE_OK:
-			t_ptr t = m_core->addTorrent(d.getMagnetURL());
+			shared_ptr<Torrent> t = m_core->addTorrent(d.getMagnetURL());
 			m_treeview->addCell(t);
 		break;
 	}
